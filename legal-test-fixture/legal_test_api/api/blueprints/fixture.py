@@ -3,9 +3,9 @@ from sqlalchemy import exc
 from legal_api import db
 from legal_api.models.business import Business, Director, Address
 from legal_api.models.office import OfficeType
-from legal_api.api.converter.ExcelConverter import ExcelConverter
-from legal_api.api.converter.ExcelWriter import ExcelWriter
-from legal_api.api.converter.JsonConverter import JsonConverter
+from legal_test_api.api.converter.ExcelConverter import ExcelConverter
+from legal_test_api.api.converter.ExcelWriter import ExcelWriter
+from legal_test_api.api.converter.JsonConverter import JsonConverter
 from datetime import datetime
 from http import HTTPStatus
 import logging

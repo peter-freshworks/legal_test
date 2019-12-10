@@ -2,7 +2,7 @@ from flask import json, jsonify
 from legal_api.models.business import Business, Director, Address
 from legal_api.models.office import Office, OfficeType
 import logging
-from legal_api.api.converter.utils import format_date, format_non_date, format_boolean, format_json
+from legal_test_api.api.converter.utils import format_date, format_non_date, format_boolean, format_json
 
 
 class JsonConverter():
