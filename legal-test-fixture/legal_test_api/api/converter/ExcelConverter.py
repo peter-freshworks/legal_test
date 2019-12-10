@@ -2,8 +2,8 @@ from flask import json
 from sqlalchemy import exc
 from sqlalchemy_continuum import versioning_manager
 from legal_api import db
-from legal_api.models.business import Business, Director, Address, Filing
-from legal_api.api.converter.utils import format_date, format_non_date, format_boolean, SheetName
+from legal_api.models.business import Business, Director, Address, Filing, Office
+from legal_test_api.api.converter.utils import format_date, format_non_date, format_boolean, SheetName
 from datetime import datetime
 from enum import Enum
 import logging
@@ -40,6 +40,18 @@ class ExcelConverter():
                 existing_business = Business.find_by_identifier(
                     row_business_identifier)
                 if existing_business:
+
+                    for f in existing_business.filings.all():
+                        f._payment_token = None
+                        db.session.delete(f)
+
+                    for ma in existing_business.mailing_address.all():
+                        db.session.delete(ma)
+                    for da in existing_business.delivery_address.all():
+                        db.session.delete(da)
+                    for office in existing_business.offices.all():
+                        db.session.delete(office)
+
                     db.session.delete(existing_business)
 
             business = self.__create_business_from_row(row, book)
@@ -147,6 +159,12 @@ class ExcelConverter():
         iter_business_address_rows = iter(business_address_sheet.get_rows())
         # (skipping the header line)
         next(iter_business_address_rows)
+        office = Office()
+        office.business_id = business.id
+        office.office_type = 'registeredOffice'
+        db.session.add(office)
+        db.session.commit()
+
         for business_address_row in iter_business_address_rows:
             if business_address_row[0].value == business.identifier:
                 address = Address(
@@ -164,15 +182,9 @@ class ExcelConverter():
                         business_address_row, 8),
                     business_id=business.id
                 )
+                address.office_id = office.id
                 db.session.add(address)
-                db.session.commit()
-                if (address.address_type == Address.MAILING):
-                    business.mailing_address.append(address)
-                elif (address.address_type == Address.DELIVERY):
-                    business.delivery_address.append(address)
-            # If the mailing anddress and the delivery address are both found, no need to continue
-            if business.mailing_address.one_or_none() and business.delivery_address.one_or_none():
-                break
+            db.session.commit()
 
     def __add_filings(self, business, book):
         # Get the filings properties and create the filings

@@ -15,13 +15,13 @@ def create_app(script_info=None):
     CORS(app)
 
     # Get config
-    app.config.from_object('legal_api.config.Config')
+    app.config.from_object('legal_test_api.config.Config')
 
     # Set up extensions
     db.init_app(app)
 
     # Register blueprints
-    from legal_api.api.blueprints.fixture import fixture_blueprint
+    from legal_test_api.api.blueprints.fixture import fixture_blueprint
     app.register_blueprint(fixture_blueprint)
     # ADD OTHER BLUEPRINTS AS NEW RESOURCES ARE NEEDED
 
